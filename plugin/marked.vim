@@ -32,7 +32,7 @@ function! s:RemoveDocument(path)
   endif
 endfunction
 
-function! s:OpenMarked(background)
+function! OpenMarked(background)
   let l:filename = expand("%:p")
 
   call s:AddDocument(l:filename)
@@ -41,7 +41,7 @@ function! s:OpenMarked(background)
   redraw!
 endfunction
 
-function! s:QuitMarked(path)
+function! QuitMarked(path)
   call s:RemoveDocument(a:path)
 
   let cmd  = " -e 'try'"
@@ -59,25 +59,25 @@ function! s:QuitMarked(path)
   redraw!
 endfunction
 
-function! s:ToggleMarked(background, path)
+function! ToggleMarked(background, path)
   if index(s:open_documents, a:path) < 0
-    call s:OpenMarked(a:background)
+    call OpenMarked(a:background)
   else
-    call s:QuitMarked(a:path)
+    call QuitMarked(a:path)
   endif
 endfunction
 
-function! s:QuitAll()
+function! QuitAll()
   for document in s:open_documents
-    call s:QuitMarked(document)
+    call QuitMarked(document)
   endfor
 endfunction
 
 function! s:RegisterCommands(filetype) abort
   if index(g:marked_filetypes, a:filetype) >= 0
-    command! -buffer -bang MarkedOpen   call s:OpenMarked(<bang>0)
-    command! -buffer       MarkedQuit   call s:QuitMarked(expand('%:p'))
-    command! -buffer -bang MarkedToggle call s:ToggleMarked(<bang>0, expand('%:p'))
+    command! -buffer -bang MarkedOpen   call OpenMarked(<bang>0)
+    command! -buffer       MarkedQuit   call QuitMarked(expand('%:p'))
+    command! -buffer -bang MarkedToggle call ToggleMarked(<bang>0, expand('%:p'))
 
     let b:undo_ftplugin = get(b:, "undo_ftplugin", "exe") .
       \ "| delc MarkedOpen | delc MarkedQuit | delc MarkedToggle"
@@ -86,7 +86,7 @@ endfunction
 
 augroup marked_commands
   autocmd!
-  autocmd VimLeavePre * call s:QuitAll()
+  autocmd VimLeavePre * call QuitAll()
   autocmd FileType * call s:RegisterCommands(expand("<amatch>"))
 augroup END
 
